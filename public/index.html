@@ -294,7 +294,7 @@
         function renderBundles() {
             const grid = document.getElementById('bundlesGrid');
             grid.innerHTML = bundles.map(bundle => `
-                <div class="bundle-card p-6 bg-white rounded-xl cursor-pointer" onclick="selectBundle(${bundle.id}, event)">
+                <div class="bundle-card p-6 bg-white rounded-xl cursor-pointer" onclick="selectBundle(${bundle.id}, this)">
                     <div class="flex justify-between items-start mb-4">
                         <div>
                             <h3 class="text-xl font-bold text-gray-800">${bundle.name}</h3>
@@ -313,14 +313,14 @@
             `).join('');
         }
 
-        function selectBundle(bundleId, evt) {
+        function selectBundle(bundleId, element) {
             selectedBundle = bundles.find(b => b.id === bundleId);
             
             // Update UI
             document.querySelectorAll('.bundle-card').forEach(card => {
                 card.classList.remove('selected');
             });
-            evt.currentTarget.classList.add('selected');
+            element.classList.add('selected');
             
             // Enable continue button
             document.getElementById('continueToStep2').disabled = false;
