@@ -1,0 +1,27 @@
+{
+  "name": "farman-connect",
+  "version": "1.0.0",
+  "description": "Wi-Fi Captive Portal for TP-Link Omada Controller with Azam Pay integration",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "mysql2": "^3.6.0",
+    "sequelize": "^6.33.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "axios": "^1.6.0",
+    "body-parser": "^1.20.2",
+    "jsonwebtoken": "^9.0.2",
+    "bcryptjs": "^2.4.3",
+    "express-validator": "^7.0.1",
+    "morgan": "^1.10.0",
+    "helmet": "^7.1.0"
+  },
+  "keywords": ["captive-portal", "omada", "azampay", "wifi"],
+  "author": "Farman Connect",
+  "license": "MIT"
+}

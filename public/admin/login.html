@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - Farman Connect</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --secondary: #1e3a8a;
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--secondary) 0%, #1e40af 50%, #1e3a8a 100%);
+            min-height: 100vh;
+        }
+        
+        .login-card {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+        }
+    </style>
+</head>
+<body class="font-sans">
+    <div class="min-h-screen flex items-center justify-center p-4">
+        <div class="w-full max-w-md">
+            <!-- Logo -->
+            <div class="text-center mb-8">
+                <div class="w-20 h-20 mx-auto bg-white rounded-full flex items-center justify-center shadow-lg mb-4">
+                    <i class="fas fa-wifi text-4xl text-blue-600"></i>
+                </div>
+                <h1 class="text-3xl font-bold text-white">Farman Connect</h1>
+                <p class="text-blue-200">Admin Portal</p>
+            </div>
+
+            <!-- Login Card -->
+            <div class="login-card rounded-2xl shadow-2xl p-8">
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">Welcome Back</h2>
+                <p class="text-gray-600 mb-6">Sign in to manage your Wi-Fi network</p>
+
+                <!-- Error Message -->
+                <div id="errorMessage" class="hidden bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span id="errorText">Invalid credentials</span>
+                    </div>
+                </div>
+
+                <!-- Login Form -->
+                <form id="loginForm" onsubmit="handleLogin(event)">
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Username</label>
+                        <div class="relative">
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                                <i class="fas fa-user"></i>
+                            </span>
+                            <input type="text" id="username" name="username" required
+                                class="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                placeholder="Enter your username">
+                        </div>
+                    </div>
+
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                        <div class="relative">
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                                <i class="fas fa-lock"></i>
+                            </span>
+                            <input type="password" id="password" name="password" required
+                                class="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                placeholder="Enter your password">
+                            <button type="button" onclick="togglePassword()" 
+                                class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                                <i id="eyeIcon" class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button type="submit" id="loginBtn"
+                        class="w-full py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2">
+                        <i class="fas fa-sign-in-alt"></i>
+                        <span>Sign In</span>
+                    </button>
+                </form>
+
+                <div class="mt-6 text-center">
+                    <a href="/" class="text-sm text-blue-600 hover:text-blue-800">
+                        <i class="fas fa-arrow-left mr-1"></i> Back to Client Portal
+                    </a>
+                </div>
+            </div>
+
+            <!-- Demo Credentials -->
+            <div class="mt-6 bg-white/10 backdrop-blur-md rounded-lg p-4 text-center">
+                <p class="text-white/80 text-sm mb-1">Demo Credentials:</p>
+                <p class="text-white font-medium">Username: <span class="text-blue-300">admin</span> | Password: <span class="text-blue-300">admin123</span></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const eyeIcon = document.getElementById('eyeIcon');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                eyeIcon.classList.remove('fa-eye');
+                eyeIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                eyeIcon.classList.remove('fa-eye-slash');
+                eyeIcon.classList.add('fa-eye');
+            }
+        }
+
+        async function handleLogin(event) {
+            event.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const loginBtn = document.getElementById('loginBtn');
+            const errorMessage = document.getElementById('errorMessage');
+            
+            // Show loading
+            loginBtn.disabled = true;
+            loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
+            errorMessage.classList.add('hidden');
+            
+            try {
+                const response = await fetch('/api/admin/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Store token
+                    localStorage.setItem('adminToken', data.data.token);
+                    localStorage.setItem('adminData', JSON.stringify(data.data.admin));
+                    
+                    // Redirect to admin panel
+                    window.location.href = '/admin';
+                } else {
+                    errorMessage.classList.remove('hidden');
+                    document.getElementById('errorText').textContent = data.message || 'Invalid credentials';
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                errorMessage.classList.remove('hidden');
+                document.getElementById('errorText').textContent = 'Connection error. Please try again.';
+            } finally {
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i><span>Sign In</span>';
+            }
+        }
+
+        // Check if already logged in
+        if (localStorage.getItem('adminToken')) {
+            window.location.href = '/admin';
+        }
+    </script>
+</body>
+</html>
