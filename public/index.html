@@ -153,7 +153,7 @@
 
             <!-- Continue Button -->
             <div class="flex justify-end">
-                <button id="continueToStep2" onclick="goToStep2()" disabled 
+                <button id="continueToStep2" onclick="alert('Button clicked!'); goToStep2()" disabled 
                     class="px-8 py-3 bg-blue-600 text-white font-semibold rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-blue-700 transition-colors flex items-center gap-2">
                     <span>Continue to Payment</span>
                     <i class="fas fa-arrow-right"></i>
@@ -294,7 +294,7 @@
         function renderBundles() {
             const grid = document.getElementById('bundlesGrid');
             grid.innerHTML = bundles.map(bundle => `
-                <div class="bundle-card p-6 bg-white rounded-xl cursor-pointer" onclick="selectBundle(${bundle.id}, this)">
+                <div class="bundle-card p-6 bg-white rounded-xl cursor-pointer" data-bundle-id="${bundle.id}">
                     <div class="flex justify-between items-start mb-4">
                         <div>
                             <h3 class="text-xl font-bold text-gray-800">${bundle.name}</h3>
@@ -311,19 +311,35 @@
                     </div>
                 </div>
             `).join('');
+            
+            // Add click listeners using event delegation
+            grid.onclick = function(e) {
+                const card = e.target.closest('.bundle-card');
+                if (card) {
+                    const bundleId = parseInt(card.dataset.bundleId);
+                    handleBundleSelect(bundleId, card);
+                }
+            };
         }
-
-        function selectBundle(bundleId, element) {
+        
+        function handleBundleSelect(bundleId, card) {
             selectedBundle = bundles.find(b => b.id === bundleId);
             
             // Update UI
-            document.querySelectorAll('.bundle-card').forEach(card => {
-                card.classList.remove('selected');
+            document.querySelectorAll('.bundle-card').forEach(c => {
+                c.classList.remove('selected');
             });
-            element.classList.add('selected');
+            card.classList.add('selected');
             
-            // Enable continue button
-            document.getElementById('continueToStep2').disabled = false;
+            // Go directly to step 2 (payment step)
+            document.getElementById('step1').classList.add('hidden');
+            document.getElementById('step2').classList.remove('hidden');
+            
+            // Update summary
+            document.getElementById('selectedPlanName').textContent = selectedBundle.name;
+            document.getElementById('selectedPlanPrice').textContent = `${selectedBundle.currency} ${selectedBundle.price.toLocaleString()}`;
+            
+            updateStepIndicators(2);
         }
 
         function goToStep1() {
@@ -333,7 +349,11 @@
         }
 
         function goToStep2() {
-            if (!selectedBundle) return;
+            alert('goToStep2 called, selectedBundle: ' + selectedBundle);
+            if (!selectedBundle) {
+                alert('No bundle selected!');
+                return;
+            }
             
             document.getElementById('step1').classList.add('hidden');
             document.getElementById('step2').classList.remove('hidden');
